@@ -5,6 +5,7 @@ import {
   Patch,
   Param,
   ParseIntPipe,
+  Delete,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -28,5 +29,10 @@ export class AdminController {
     @Body() updateProductDto: UpdateProductDto,
   ) {
     return await this.adminService.updateProduct(id, updateProductDto);
+  }
+
+  @Delete('product/:id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.adminService.removeProduct(id);
   }
 }

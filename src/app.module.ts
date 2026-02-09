@@ -8,6 +8,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
+import { AdminModule } from './admin/admin.module';
+import { CustomerModule } from './customer/customer.module';
 
 @Module({
   imports: [
@@ -29,6 +32,8 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
         namingStrategy: new SnakeNamingStrategy(),
       }),
     }),
+    AdminModule,
+    CustomerModule,
   ],
   controllers: [AppController],
   providers: [
@@ -36,6 +41,10 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })

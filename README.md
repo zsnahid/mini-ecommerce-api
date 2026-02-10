@@ -1,98 +1,146 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Mini E-Commerce API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A backend system designed to simulate a basic online shopping platform. This project focuses on authentication, role-based access control, product management, cart operations, and order processing while ensuring proper business logic and data consistency.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Live API Deployment
 
-## Description
+> [Link to Live API Deployment Placeholder]
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tech Stack
 
-## Project setup
+- **Framework:** [NestJS](https://nestjs.com/) (Node.js)
+- **Language:** TypeScript
+- **Database:** PostgreSQL
+- **ORM:** TypeORM
+- **Authentication:** Passport & JWT (JSON Web Tokens)
+- **Validation:** class-validator
+- **Package Manager:** pnpm
 
-```bash
-$ pnpm install
+## Setup Instructions
+
+### Prerequisites
+
+- Node.js (v16+)
+- PostgreSQL
+- pnpm
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone <repository-url>
+   cd mini-ecommerce-api
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   pnpm install
+   ```
+
+3. Environment Configuration:
+   Create a `.env` file in the root directory and configure your database credentials and JWT secret.
+
+   ```env
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_USERNAME=postgres
+   DB_PASSWORD=yourpassword
+   DB_NAME=ecommerce
+   JWT_SECRET=yoursecretkey
+   ```
+
+4. Run the application:
+   ```bash
+   # development mode
+   pnpm run start:dev
+   ```
+
+## Database Schema
+
+The database schema is designed to ensure data integrity and support transaction-based operations.
+
+```mermaid
+erDiagram
+    User ||--o{ Order : places
+    User ||--o| Cart : has
+    Product ||--o{ CartItem : is_in
+    Cart ||--o{ CartItem : contains
+    Order ||--o{ OrderItem : contains
+    Product ||--o{ OrderItem : is_in
+
+    User {
+        int id PK
+        string email
+        string password_hash
+        enum role
+        datetime created_at
+    }
+
+    Product {
+        int id PK
+        string name
+        string description
+        decimal price
+        int stock
+        enum status
+        int version
+        datetime updated_at
+    }
+
+    Cart {
+        int id PK
+        int user_id FK
+        datetime updated_at
+    }
+
+    CartItem {
+        int id PK
+        int cart_id FK
+        int product_id FK
+        int quantity
+    }
+
+    Order {
+        int id PK
+        int user_id FK
+        decimal total_amount
+        enum status
+        datetime created_at
+    }
+
+    OrderItem {
+        int id PK
+        int order_id FK
+        int product_id FK
+        int quantity
+        decimal price_at_purchase
+    }
 ```
 
-## Compile and run the project
+## Key Architectural Decisions
 
-```bash
-# development
-$ pnpm run start
+1.  **Atomic Transactions for Orders**:
+    - To prevent overselling (race conditions), order placement wraps inventory deduction and order creation in a single database transaction.
+    - Used Pessimistic Locking (or safe atomic updates) to ensure stock doesn't drop below zero.
 
-# watch mode
-$ pnpm run start:dev
+2.  **Snapshotting Pricing**:
+    - Prices in `OrderItems` are snapshots of the product price at the time of purchase. This ensures that future changes to product prices do not affect historical order data.
 
-# production mode
-$ pnpm run start:prod
-```
+3.  **Persistent Cart**:
+    - The Cart is modeled as a persistent database entity linked 1-to-1 with the `User`. This allows the cart state to persist across sessions and devices/browsers.
 
-## Run tests
+4.  **Calculated Totals**:
+    - All financial calculations (e.g., Order Total) are performed strictly on the backend using the database's product information, ignoring any prices sent from the client to prevent manipulation.
 
-```bash
-# unit tests
-$ pnpm run test
+5.  **Role-Based Access Control (RBAC)**:
+    - Custom Guards and Decorators (`@Roles`, `@CurrentUser`) separate concerns between Admin (Product Management) and Customer (Shopping) features.
 
-# e2e tests
-$ pnpm run test:e2e
+## Assumptions Made
 
-# test coverage
-$ pnpm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- **Currency**: All prices are assumed to be in a single currency (e.g., USD) for simplicity.
+- **Payment Flow**: Actual payment gateway integration is out of scope. The "Place Order" action assumes payment is successful or handles it as a distinct "Pending" state.
+- **Inventory**: Stock is deducted immediately upon order placement ("Inventory Locking").
+- **Single Cart**: A user has only one active cart. Adding an item to the cart checks if a cart exists; if not, it creates one.
+- **Soft Deletes**: Products are soft-deleted (`status = 'deleted'`) rather than removed from the database to preserve referential integrity for historical orders.

@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, Patch, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
@@ -36,5 +44,13 @@ export class CustomerController {
       +id,
       updateCartItemDto,
     );
+  }
+
+  @Delete('cart/items/:id')
+  async removeCartItem(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
+  ) {
+    return await this.customerService.removeCartItem(user.userId, +id);
   }
 }

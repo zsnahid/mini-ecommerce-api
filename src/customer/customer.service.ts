@@ -133,6 +133,26 @@ export class CustomerService {
     return this.getCart(userId);
   }
 
+  async removeCartItem(userId: number, cartItemId: number): Promise<any> {
+    // Get user's cart to ensure ownership
+    const cart = await this.getOrCreateCart(userId);
+
+    // Find the cart item
+    const cartItem = await this.cartItemRepository.findOne({
+      where: { id: cartItemId, cart: { id: cart.id } },
+    });
+
+    if (!cartItem) {
+      throw new NotFoundException('Cart item not found in your cart');
+    }
+
+    // Delete cart item
+    await this.cartItemRepository.remove(cartItem);
+
+    // Return updated cart
+    return this.getCart(userId);
+  }
+
   async getCart(userId: number): Promise<any> {
     const cart = await this.getOrCreateCart(userId);
 

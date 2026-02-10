@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
@@ -17,5 +17,10 @@ export class CustomerController {
     @Body() addToCartDto: AddToCartDto,
   ) {
     return await this.customerService.addToCart(user.userId, addToCartDto);
+  }
+
+  @Get('cart')
+  async getCart(@CurrentUser() user: JwtPayload) {
+    return await this.customerService.getCart(user.userId);
   }
 }

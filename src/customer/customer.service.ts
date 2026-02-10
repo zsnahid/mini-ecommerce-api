@@ -23,12 +23,12 @@ export class CustomerService {
 
   private async getOrCreateCart(userId: number): Promise<Cart> {
     let cart = await this.cartRepository.findOne({
-      where: { userId },
+      where: { user: { id: userId } },
       relations: ['items', 'items.product'],
     });
 
     if (!cart) {
-      cart = this.cartRepository.create({ userId });
+      cart = this.cartRepository.create({ user: { id: userId } });
       cart = await this.cartRepository.save(cart);
       cart.items = [];
     }
@@ -57,7 +57,7 @@ export class CustomerService {
 
     // Check if product already exists in cart
     const existingItem = cart.items.find(
-      (item) => item.productId === productId,
+      (item) => item.product.id === productId,
     );
 
     if (existingItem) {
@@ -83,8 +83,8 @@ export class CustomerService {
 
       // Create new cart item
       const cartItem = this.cartItemRepository.create({
-        cartId: cart.id,
-        productId,
+        cart,
+        product,
         quantity,
       });
       await this.cartItemRepository.save(cartItem);
@@ -92,8 +92,28 @@ export class CustomerService {
 
     // Return updated cart with items and product details
     return (await this.cartRepository.findOne({
-      where: { userId },
+      where: { user: { id: userId } },
       relations: ['items', 'items.product'],
     }))!;
+  }
+
+  async getCart(userId: number): Promise<any> {
+    const cart = await this.getOrCreateCart(userId);
+
+    let totalItems = 0;
+    let totalPrice = 0;
+
+    if (cart.items) {
+      for (const item of cart.items) {
+        totalItems += item.quantity;
+        totalPrice += item.quantity * Number(item.product.price);
+      }
+    }
+
+    return {
+      ...cart,
+      totalItems,
+      totalPrice: Number(totalPrice.toFixed(2)),
+    };
   }
 }

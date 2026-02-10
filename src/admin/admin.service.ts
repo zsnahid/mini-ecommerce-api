@@ -4,12 +4,15 @@ import { Repository } from 'typeorm';
 import { Product, ProductStatus } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { OrderItem } from '../orders/entities/order-item.entity';
 
 @Injectable()
 export class AdminService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    @InjectRepository(OrderItem)
+    private readonly orderItemRepository: Repository<OrderItem>,
   ) {}
 
   async createProduct(createProductDto: CreateProductDto): Promise<Product> {
@@ -37,10 +40,10 @@ export class AdminService {
   async removeProduct(id: number): Promise<{ message: string }> {
     const product = await this.findOne(id);
 
-    // TODO: Check if product has associated order history
-    // Since Order/OrderItem entities are not yet implemented, we assume no history for now.
-    // When implemented, hard delete should be blocked if history exists.
-    const hasOrderHistory = false;
+    const count = await this.orderItemRepository.count({
+      where: { product: { id } },
+    });
+    const hasOrderHistory = count > 0;
 
     if (hasOrderHistory) {
       product.status = ProductStatus.DELETED;

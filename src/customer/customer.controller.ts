@@ -1,9 +1,10 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UserRole } from '../users/entities/user.entity';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AddToCartDto } from './dto/add-to-cart.dto';
+import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 import type { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 @Controller('customer')
@@ -22,5 +23,18 @@ export class CustomerController {
   @Get('cart')
   async getCart(@CurrentUser() user: JwtPayload) {
     return await this.customerService.getCart(user.userId);
+  }
+
+  @Patch('cart/items/:id')
+  async updateCartItem(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') id: string,
+    @Body() updateCartItemDto: UpdateCartItemDto,
+  ) {
+    return await this.customerService.updateCartItem(
+      user.userId,
+      +id,
+      updateCartItemDto,
+    );
   }
 }

@@ -9,6 +9,7 @@ import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { Product, ProductStatus } from '../admin/entities/product.entity';
 import { AddToCartDto } from './dto/add-to-cart.dto';
+import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 
 @Injectable()
 export class CustomerService {
@@ -95,6 +96,41 @@ export class CustomerService {
       where: { user: { id: userId } },
       relations: ['items', 'items.product'],
     }))!;
+  }
+
+  async updateCartItem(
+    userId: number,
+    cartItemId: number,
+    updateDto: UpdateCartItemDto,
+  ): Promise<any> {
+    const { quantity } = updateDto;
+
+    // Get user's cart to ensure ownership
+    const cart = await this.getOrCreateCart(userId);
+
+    // Find the cart item
+    const cartItem = await this.cartItemRepository.findOne({
+      where: { id: cartItemId, cart: { id: cart.id } },
+      relations: ['product'],
+    });
+
+    if (!cartItem) {
+      throw new NotFoundException('Cart item not found in your cart');
+    }
+
+    // Validate stock
+    if (quantity > cartItem.product.stock) {
+      throw new BadRequestException(
+        `Insufficient stock. Available: ${cartItem.product.stock}, Requested: ${quantity}`,
+      );
+    }
+
+    // Update quantity
+    cartItem.quantity = quantity;
+    await this.cartItemRepository.save(cartItem);
+
+    // Return updated cart
+    return this.getCart(userId);
   }
 
   async getCart(userId: number): Promise<any> {

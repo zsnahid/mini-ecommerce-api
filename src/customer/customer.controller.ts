@@ -53,4 +53,10 @@ export class CustomerController {
   ) {
     return await this.customerService.removeCartItem(user.userId, +id);
   }
+
+  @Delete('cart')
+  async clearCart(@CurrentUser() user: JwtPayload) {
+    await this.customerService.clearCart(user.userId);
+    return { message: 'Cart cleared successfully' };
+  }
 }

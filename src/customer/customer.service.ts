@@ -153,6 +153,13 @@ export class CustomerService {
     return this.getCart(userId);
   }
 
+  async clearCart(userId: number): Promise<void> {
+    const cart = await this.getOrCreateCart(userId);
+    if (cart.items && cart.items.length > 0) {
+      await this.cartItemRepository.remove(cart.items);
+    }
+  }
+
   async getCart(userId: number): Promise<any> {
     const cart = await this.getOrCreateCart(userId);
 

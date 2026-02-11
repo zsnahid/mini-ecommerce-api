@@ -28,7 +28,7 @@ export class Order {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
+  @OneToMany(() => OrderItem, (item) => item.order)
   items: OrderItem[];
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })

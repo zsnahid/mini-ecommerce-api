@@ -31,6 +31,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
         'The resource has been modified by another process. Please reload and try again.';
     }
 
+    // Log the error for debugging
+    if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+      console.error('Internal Server Error caught in filter:', exception);
+    }
+
     const finalMessage =
       typeof message === 'object' && 'message' in message
         ? message['message']

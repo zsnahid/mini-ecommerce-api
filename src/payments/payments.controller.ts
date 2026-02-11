@@ -18,7 +18,6 @@ export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post('create-intent')
-  @UseGuards(JwtAuthGuard)
   createIntent(@Body('orderId') orderId: number, @CurrentUser() user: User) {
     return this.paymentsService.createPaymentIntent(orderId, user);
   }

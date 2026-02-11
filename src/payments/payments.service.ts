@@ -9,7 +9,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Stripe from 'stripe';
 import { Order, OrderStatus } from '../orders/entities/order.entity';
-import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class PaymentsService {
@@ -29,7 +28,7 @@ export class PaymentsService {
     });
   }
 
-  async createPaymentIntent(orderId: number, user: User) {
+  async createPaymentIntent(orderId: number, user: any) {
     const order = await this.orderRepository.findOne({
       where: { id: orderId },
       relations: ['user'],
@@ -39,7 +38,7 @@ export class PaymentsService {
       throw new NotFoundException('Order not found');
     }
 
-    if (order.user.id !== user.id) {
+    if (order.user.id !== user.userId) {
       // Simple ownership check
       throw new NotFoundException('Order not found');
     }

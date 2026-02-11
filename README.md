@@ -4,7 +4,7 @@ A backend system designed to simulate a basic online shopping platform. This pro
 
 ## Live API Deployment
 
-🚀 **Live API:** https://mini-ecommerce-api-dk2p.onrender.com
+🚀 **Live API:** https://mini-ecommerce-api-dk2p.onrender.com/api
 
 📖 **API Documentation:** https://mini-ecommerce-api-dk2p.onrender.com/api/docs
 

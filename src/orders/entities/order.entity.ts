@@ -12,6 +12,8 @@ import { OrderItem } from './order-item.entity';
 
 export enum OrderStatus {
   PENDING = 'pending',
+  AWAITING_PAYMENT = 'awaiting_payment',
+  PAID = 'paid',
   SHIPPED = 'shipped',
   DELIVERED = 'delivered',
   CANCELLED = 'cancelled',
@@ -31,6 +33,12 @@ export class Order {
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   totalAmount: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  paymentIntentId: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  clientSecret: string | null;
 
   @Column({
     type: 'enum',

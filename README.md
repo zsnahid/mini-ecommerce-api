@@ -47,7 +47,7 @@ A backend system designed to simulate a basic online shopping platform. This pro
    DB_PORT=5432
    DB_USERNAME=postgres
    DB_PASSWORD=yourpassword
-   DB_NAME=ecommerce
+   DB_NAME=mini_ecommerce
    JWT_SECRET=yoursecretkey
    ```
 
@@ -106,6 +106,8 @@ erDiagram
         int id PK
         int user_id FK
         decimal total_amount
+        string payment_intent_id
+        string client_secret
         enum status
         datetime created_at
     }

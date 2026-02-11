@@ -4,7 +4,11 @@ A backend system designed to simulate a basic online shopping platform. This pro
 
 ## Live API Deployment
 
-> [Link to Live API Deployment Placeholder]
+🚀 **Live API:** https://mini-ecommerce-api-dk2p.onrender.com
+
+📖 **API Documentation:** https://mini-ecommerce-api-dk2p.onrender.com/api/docs
+
+> ⚠️ **Note:** This project is deployed on a free Render instance which spins down with inactivity. The first request after inactivity may take 50 seconds or more to respond. Please be patient while the service starts up.
 
 ## Tech Stack
 
@@ -130,16 +134,6 @@ This API is configured for easy deployment on [Render](https://render.com).
      - Copy the internal database URL and use it for the DB environment variables
 
 6. **Deploy!** Render will automatically build and deploy your application
-
-### Using render.yaml (Blueprint)
-
-Alternatively, you can use the included `render.yaml` file for Infrastructure as Code:
-
-1. In your Render dashboard, click "New +" → "Blueprint"
-2. Connect your repository
-3. Render will automatically detect the `render.yaml` file
-4. Review and apply the configuration
-5. Set any sync: false environment variables manually
 
 ### Post-Deployment
 

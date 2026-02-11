@@ -16,6 +16,12 @@ A backend system designed to simulate a basic online shopping platform. This pro
 - **Validation:** class-validator
 - **Package Manager:** pnpm
 
+## API Documentation
+
+Comprehensive interactive API documentation is available via Swagger/OpenAPI:
+
+- **Swagger UI:** http://localhost:5000/api/docs (when running locally)
+
 ## Setup Instructions
 
 ### Prerequisites

@@ -46,22 +46,106 @@ Comprehensive interactive API documentation is available via Swagger/OpenAPI:
    ```
 
 3. Environment Configuration:
-   Create a `.env` file in the root directory and configure your database credentials and JWT secret.
+   Create a `.env` file in the root directory with your database credentials and JWT secret.
 
    ```env
+   NODE_ENV=development
    DB_HOST=localhost
    DB_PORT=5432
    DB_USERNAME=postgres
    DB_PASSWORD=yourpassword
    DB_NAME=mini_ecommerce
    JWT_SECRET=yoursecretkey
+   JWT_EXPIRES_IN=7d
+   STRIPE_SECRET_KEY=sk_test_your_key
+   STRIPE_WEBHOOK_SECRET=whsec_your_secret
    ```
 
+   **Note:** Never commit your `.env` file to Git (it's in `.gitignore`).
+
 4. Run the application:
+
    ```bash
    # development mode
    pnpm run start:dev
+
+   # production mode
+   pnpm run build
+   pnpm start
    ```
+
+## Deployment to Render
+
+This API is configured for easy deployment on [Render](https://render.com).
+
+### Quick Deploy
+
+1. **Push your code** to a GitHub repository
+
+2. **Connect to Render:**
+   - Go to [Render Dashboard](https://dashboard.render.com)
+   - Click "New +" and select "Web Service"
+   - Connect your GitHub repository
+
+3. **Configure the service:**
+   - **Build Command:** `pnpm install && pnpm run build`
+   - **Start Command:** `pnpm start`
+   - **Environment:** Node
+   - Render will auto-detect `pnpm-lock.yaml` and use pnpm
+
+4. **Set Environment Variables** in Render dashboard:
+
+   **Option A: Use individual connection parameters**
+
+   ```
+   NODE_ENV=production
+   PORT=10000
+   DB_HOST=aws-1-[region].pooler.supabase.com
+   DB_PORT=5432
+   DB_USERNAME=postgres.[project-ref]
+   DB_PASSWORD=<your-db-password>
+   DB_NAME=postgres
+   JWT_SECRET=<generate-a-secure-random-string>
+
+   STRIPE_SECRET_KEY=<your-stripe-secret-key>
+   STRIPE_WEBHOOK_SECRET=<your-stripe-webhook-secret>
+   ```
+
+   **Option B: Use Supabase connection URI** (simpler)
+
+   ```
+   NODE_ENV=production
+   PORT=10000
+   DB_URI=postgresql://postgres.[project-ref]:[PASSWORD]@aws-1-[region].pooler.supabase.com:5432/postgres
+   JWT_SECRET=<generate-a-secure-random-string>
+   STRIPE_SECRET_KEY=<your-stripe-secret-key>
+   STRIPE_WEBHOOK_SECRET=<your-stripe-webhook-secret>
+   ```
+
+5. **Create a PostgreSQL database:**
+   - **Option A: Supabase** (recommended)
+     - Use Session Pooler credentials for IPv4 compatibility
+   - **Option B: Render PostgreSQL**
+     - Go to "New +" and select "PostgreSQL"
+     - Copy the internal database URL and use it for the DB environment variables
+
+6. **Deploy!** Render will automatically build and deploy your application
+
+### Using render.yaml (Blueprint)
+
+Alternatively, you can use the included `render.yaml` file for Infrastructure as Code:
+
+1. In your Render dashboard, click "New +" → "Blueprint"
+2. Connect your repository
+3. Render will automatically detect the `render.yaml` file
+4. Review and apply the configuration
+5. Set any sync: false environment variables manually
+
+### Post-Deployment
+
+- Your API will be available at: `https://your-service-name.onrender.com`
+- Swagger documentation: `https://your-service-name.onrender.com/api/docs`
+- Health check: `https://your-service-name.onrender.com/api`
 
 ## Database Schema
 

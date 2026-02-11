@@ -19,7 +19,7 @@ const options: DataSourceOptions & SeederOptions = {
   port: parseInt(process.env.DB_PORT || '5432', 10),
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
-  database: process.env.DB_NAME || 'ecommerce',
+  database: process.env.DB_NAME || 'mini_ecommerce',
   entities: [User, Product, Cart, CartItem, Order, OrderItem],
   namingStrategy: new SnakeNamingStrategy(),
   seeds: [UserSeeder, ProductSeeder],
